@@ -1,0 +1,51 @@
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Create the Screen GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = playerGui
+
+-- Lay Down Button
+local layDownButton = Instance.new("TextButton")
+layDownButton.Size = UDim2.new(0, 100, 0, 50)
+layDownButton.Position = UDim2.new(0, 10, 1, -280) -- Centered at the top
+layDownButton.Text = "Lay Down"
+layDownButton.Font = Enum.Font.SourceSans
+layDownButton.TextSize = 24
+layDownButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Green color
+layDownButton.TextColor3 = Color3.new(1, 1, 1) -- White text
+layDownButton.Parent = screenGui
+
+-- Function to make the character lay down and play animation
+local function layDown()
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    local animator = humanoid:FindFirstChildOfClass("Animator")
+
+    if humanoid and hrp then
+        -- Stop all playing animations
+        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+        for _, track in ipairs(humanoid:GetPlayingAnimationTracks()) do
+            track:Stop()
+        end
+
+        humanoid.PlatformStand = true -- Prevent movement
+        hrp.CFrame = hrp.CFrame * CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), 0, 0) -- Adjust to lay down
+        wait(0.1) -- Small wait to allow for the lay down position
+
+        -- Load and play the animation
+        local animation = Instance.new("Animation")
+        animation.AnimationId = "rbxassetid://10121528997"
+        local animationTrack = animator:LoadAnimation(animation)
+
+        animationTrack:Play() -- Play the animation
+        animationTrack.TimePosition = 0.45 -- Set the animation to start from 2 seconds
+        animationTrack:AdjustSpeed(0) -- Pause the animation
+
+        humanoid.PlatformStand = false -- Allow jumping again
+    end
+end
+
+-- Button click event
+layDownButton.MouseButton1Click:Connect(layDown)
